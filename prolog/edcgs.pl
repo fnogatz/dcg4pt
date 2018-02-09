@@ -1,6 +1,7 @@
 :- module(edcgs, [
       edcg_rules_to_dcg_rules/0,
       edcg_rule_to_dcg_rule/2,
+      '$edcg_append'/4,
       sequence/5
    ]).
 
