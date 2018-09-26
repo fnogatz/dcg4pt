@@ -3,7 +3,7 @@
       edcg_rule_to_dcg_rule/2,
       '$edcg_append'/4,
       sequence/5,
-      mmm/6
+      call_sequence_ground/6
    ]).
 
 :- op(1200, xfx, ==>).
@@ -111,7 +111,7 @@ conj_body(A, B, R0, R1) :-
    !,
    edcg_formula_to_dcg_formula(A, DCGBody, V),
    % B = ({ append(V, R1, R0) }, DCGBody).
-   B = mmm(DCGBody, V, R1, R0).
+   B = call_sequence_ground(DCGBody, V, R1, R0).
 conj_body(A, B, R0, R1) :-
    edcg_formula_to_dcg_formula(A, DCGBody, V),
    B = (
@@ -119,33 +119,42 @@ conj_body(A, B, R0, R1) :-
       DCGBody
    ).
 
-:- meta_predicate mmm(//, ?, ?, ?, ?, ?).
-mmm(DCGBody, V, R1, R0, In, Out) :-
+% meta-call predicates
+
+/*
+   call_sequence_ground(DCGBody, V, Tree_List_Rest, In, Out) <-
+
+   V is the last argument of DCGBody, so it's the generated
+   parsing tree. Originally, we want to simply call
+      phrase(DCGBody, In, Out)
+   and put its result V in front of the remaining list R1
+   to get R0, i.e.:
+      Translated_Body = (DCGBody, { append(V, R1, R0) })
+   However, there are two possibilities, depending on whether
+   phrase(some(?Tree),?In,?Out) is called with the `In`
+   bound or `Tree`. In the first case we want to generate
+   the appropriate parsing tree; in the latter case the
+   input list for a corresponding parsing tree should be
+   generated. That's why we need two different translated
+   rule bodies: either by calling the DCGBody at first;
+   or by splitting the list of parsing tree elements at
+   first. The latter case is equivalent to:
+      Translated_Body = ({ append(V, R1, R0) }, DCGBody)
+   The meta-predicate call_sequence_ground/6 applies this
+   distinction and calls the translated body in the right
+   order.
+*/
+:- meta_predicate call_sequence_ground(//, ?, ?, ?, ?, ?).
+call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
    var(In), \+var(R0),
    !,
    append(V, R1, R0),
    phrase(DCGBody, In, Out).
-
-mmm(DCGBody, V, R1, R0, In, Out) :-
+call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
    \+var(In), var(R0),
    !,
    phrase(DCGBody, In, Out),
    append(V, R1, R0).
-
-mmm(DCGBody, V, R1, R0, In, Out) :-
-   false,
-   R1 = [],
-   !,
-   V = R0,
-   In = [c].
-
-mmm(DCGBody, V, R1, R0, In, Out) :-
-   writeln('FEHLER'),
-   format('   ~w ~w~n', [In, R0]),
-   format('   ~w ~w ~w ~w ~w ~w~n', [DCGBody, V, R1, R0, In, Out]),
-   !, false.
-
-% meta-call predicates
 
 :- meta_predicate sequence(?, //, ?, ?, ?).
 
