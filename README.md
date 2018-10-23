@@ -1,6 +1,6 @@
 # Extended DCGs
 
-Extended Definite Clause Grammars for Prolog.
+Extend Definite Clause Grammars (DCG) for Prolog by an additional argument to automatically store the parsing tree.
 
 ## Synopsis
 
@@ -16,7 +16,8 @@ noun_phrase ==> determiner, noun.
 verb_phrase ==> ( verb ; verb, noun_phrase ).
 noun ==> [boy] ; [boys] ; [apple] ; [apples].
 determiner ==> [the].
-verb ==> [eat] ; [eats].
+verb ==> [eat].
+verb ==> [eats].
 
 main :-
   phrase(sentence(Tree), [the, boy, eats, the, apples]),
