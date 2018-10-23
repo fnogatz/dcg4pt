@@ -10,6 +10,12 @@ all: test
 version:
 	echo $(version)
 
+check:
+	test
+
+install:
+	echo "(none)"
+
 test:
 	@$(SWIPL) -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
 
