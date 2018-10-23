@@ -1,12 +1,12 @@
 name(edcgs).
 
-version('0.1.0').
-download('https://github.com/de-clare/edcgs/releases/*.zip').
+version('0.1.1').
+download('https://github.com/fnogatz/edcgs/releases/*.zip').
 
 title('Extended Definite Clause Grammars').
-author('Dietmar Seipel','seipel@informatik.uni-wuerzburg.de').
 author('Falco Nogatz','fnogatz@gmail.com').
+author('Dietmar Seipel','seipel@informatik.uni-wuerzburg.de').
 maintainer('Falco Nogatz','fnogatz@gmail.com').
 packager('Falco Nogatz','fnogatz@gmail.com').
 
-home('https://github.com/de-clare/edcgs').
+home('https://github.com/fnogatz/edcgs').
