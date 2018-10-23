@@ -10,8 +10,7 @@ all: test
 version:
 	echo $(version)
 
-check:
-	test
+check: test
 
 install:
 	echo "(none)"
