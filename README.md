@@ -11,13 +11,14 @@ Extend Definite Clause Grammars (DCG) for Prolog by an additional argument to au
 
 % Extended DCGs get expanded to hold additional
 %   argument with syntax tree.
-sentence ==> noun_phrase, verb_phrase.
-noun_phrase ==> determiner, noun.
-verb_phrase ==> ( verb ; verb, noun_phrase ).
-noun ==> [boy] ; [boys] ; [apple] ; [apples].
+sentence ==> noun_phrase(N), verb_phrase(N).
+noun_phrase(N) ==> determiner, noun(N).
+verb_phrase(N) ==> ( verb(N) ; verb(N), noun_phrase(_) ).
+noun(sg) ==> [boy]  ; [apple].
+noun(pl) ==> [boys] ; [apples].
 determiner ==> [the].
-verb ==> [eat].
-verb ==> [eats].
+verb(sg) ==> [eats].
+verb(pl) ==> [eat].
 
 main :-
   phrase(sentence(Tree), [the, boy, eats, the, apples]),
