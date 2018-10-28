@@ -54,7 +54,7 @@ Only for development purposes the [`tap` pack](http://www.swi-prolog.org/pack/li
 ?- pack_install(tap).
 ```
 
-## Usage
+## EDCG Expansion
 
 In most cases you simply want to automatically expand all EDCGs to regular DCGs. To do so, simply call:
 
@@ -69,4 +69,18 @@ Additionally you can manually call the predicates to translate an EDCG rule:
 ?- use_module(library(edcgs)).
 ?- edcg_rule_to_dcg_rule((sentence ==> noun_phrase, verb_phrase), DCG).
 DCG = (sentence(X) --> ( ... )).
+```
+
+## Usage
+
+You can use the generated predicates like normal DCGs, besides that they provide an additional argument to hold the parse tree. It is automatically added as the very last argument of the DCG body.
+
+`library(edgcs)` has been implemented to provide a tool that generates a parse tree from a given input list but also the other way around, i.e., to generate a list based on a parse tree. So you can also use it this way:
+
+```prolog
+?- Tree = noun_phrase([determiner(the), noun(boy)]),
+   phrase(noun_phrase(N, Tree), List).
+Tree = noun_phrase([determiner(the), noun(boy)]),
+N = sg,
+List = [the, boy] .
 ```
