@@ -1,6 +1,6 @@
 name(edcgs).
 
-version('0.1.5').
+version('0.1.6').
 download('https://github.com/fnogatz/edcgs/releases/*.zip').
 
 title('Extended Definite Clause Grammars').
