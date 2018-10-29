@@ -89,7 +89,7 @@ List = [the, boy] .
 
 ### Sequences
 
-`library(edcgs)` provides a built-in `sequence(Quantifier, Body)` DCG body to resolve sequences of `Body` with the quantifiers `'?'`, `'+'`, and `'*'` as known from regular expressions. Their occurrences are represented as (possibly empty) lists in the parse tree:
+`library(edcgs)` provides a built-in `sequence(+Quantifier, :Body)` DCG body to resolve sequences of `Body` with the quantifiers `'?'`, `'+'`, and `'*'` as known from regular expressions. Their occurrences are represented as (possibly empty) lists in the parse tree:
 
 ```prolog
 :- use_module(library(edcgs_expand)).
