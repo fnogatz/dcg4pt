@@ -75,6 +75,8 @@ DCG = (sentence(X) --> ( ... )).
 
 You can use the generated predicates like normal DCGs, besides that they provide an additional argument to hold the parse tree. It is automatically added as the very last argument of the DCG body.
 
+### Bound Arguments
+
 `library(edgcs)` has been implemented to provide a tool that generates a parse tree from a given input list but also the other way around, i.e., to generate a list based on a parse tree. So you can also use it this way:
 
 ```prolog
@@ -83,4 +85,40 @@ You can use the generated predicates like normal DCGs, besides that they provide
 Tree = noun_phrase([determiner(the), noun(boy)]),
 N = sg,
 List = [the, boy] .
+```
+
+### Sequences
+
+`library(edcgs)` provides a built-in `sequence(Quantifier, Body)` DCG body to resolve sequences of `Body` with the quantifiers `'?'`, `'+'`, and `'*'` as known from regular expressions. Their occurrences are represented as (possibly empty) lists in the parse tree:
+
+```prolog
+:- use_module(library(edcgs_expand)).
+
+:- op(1200, xfx, ==>).
+
+single ==> [a].
+list ==> sequence('*', single).
+non_empty_list ==> sequence('+', single).
+optional ==> sequence('?', single).
+
+main :-
+  phrase(list(Tree), [a, a, a]),
+  print_term(Tree, [indent_arguments(2)]).
+
+% prints:
+%   list([
+%     single(a),
+%     single(a),
+%     single(a) ])
+```
+
+With a free variable given as parse tree, the possibilities are generated beginning with the smallest solution:
+
+```prolog
+?- phrase(non_empty_list(Tree), List).
+Tree = non_empty_list([single(a)]),
+List = [a] ;
+Tree = non_empty_list([single(a), single(a)]),
+List = [a, a] ;
+...
 ```
