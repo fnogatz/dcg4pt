@@ -85,10 +85,10 @@ edcg_formula_to_dcg_formula(X1, X2, V) :-
    list_to_semicolon_structure(Xsn2, X2),
    !.
 edcg_formula_to_dcg_formula(X1, X2, V) :-
-   X1 = [SingleNonTerminal],
+   X1 = [SingleTerminal],
    !,
    X2 = X1,
-   V = SingleNonTerminal.
+   V = SingleTerminal.
 edcg_formula_to_dcg_formula(X1, X2, V) :-
    add_variable_to_atom(V, X1, X2).
 
