@@ -6,18 +6,11 @@
       call_sequence_ground/6
    ]).
 
-/* edcg_rules_to_dcg_rules <-
-      */
-
 edcg_rules_to_dcg_rules :-
    forall( X1-->Y1,
       ( edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2),
         expand_term(X2-->Y2, Rule),
         assert(Rule) ) ).
-
-
-/* edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2) <-
-      */
 
 edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2) :-
    edcg_formula_to_dcg_formula(Y1, Y2, Args),
@@ -26,9 +19,6 @@ edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2) :-
    Res =.. [H,Args],
    append(As1, [Res], As2),
    X2 =.. As2.
-
-/* edcg_formula_to_dcg_formula(X1, X2, Args) <-
-      */
 
 edcg_formula_to_dcg_formula(X1, X2, V) :-
    X1 = V^X,
@@ -64,12 +54,12 @@ edcg_formula_to_dcg_formula(X1, X2, V) :-
 edcg_formula_to_dcg_formula(X1, X2, V) :-
    (X1 = (_;_) ; X1 = (_|_)),
    !,
-   semicolon_structure_to_list(X1, Xs1),
+   disjunctive_list(X1, Xs1),
    maplist( edcg_formula_to_dcg_formula,
       Xs1, Xs2, Vs),
    maplist( add_variable_binding(V),
       Xs2, Vs, Xsn2),
-   list_to_semicolon_structure(Xsn2, X2),
+   disjunctive_list(X2, Xsn2),
    !.
 edcg_formula_to_dcg_formula(X1, X2, V) :-
    X1 = [SingleTerminal],
@@ -223,22 +213,17 @@ list_to_comma_structure([X|Xs], (X,Ys)) :-
 list_to_comma_structure([X], X).
 
 
-/* semicolon_structure_to_list(Structure, List) <-
-      */
-
-semicolon_structure_to_list(S, [X|Ys]) :-
-   nonvar(S),
-   (S = (X;Xs) ; S = (X | Xs)),
-   !,
-   semicolon_structure_to_list(Xs, Ys).
-semicolon_structure_to_list(X, [X]).
-
-
-/* list_to_semicolon_structure(List, Structure) <-
-      */
-
-list_to_semicolon_structure([X|Xs], (X;Ys)) :-
-   list_to_semicolon_structure(Xs, Ys).
-list_to_semicolon_structure([X], X).
+disjunctive_list(Term, [Term]) :-
+  Term \= (_;_),
+  Term \= (_|_),
+  !.
+disjunctive_list(Term, [T|Ts]) :-
+  var(Term), !,
+  disjunctive_list(TermR, Ts),
+  Term = (T;TermR).
+disjunctive_list(Term, [T|Ts]) :-
+  nonvar(Term),
+  ( Term = (T;TermR) ; Term = (T|TermR) ), !,
+  disjunctive_list(TermR, Ts).
 
 split_tuple([A,B],A,B).
