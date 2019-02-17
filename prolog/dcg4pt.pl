@@ -1,4 +1,4 @@
-:- module(edcgs, [
+:- module(dcg4pt, [
       edcg_rules_to_dcg_rules/0,
       edcg_rule_to_dcg_rule/2,
       '$edcg_append'/4,
@@ -7,13 +7,6 @@
    ]).
 
 :- op(1200, xfx, ==>).
-
-:- dynamic user:edcgs_expansion_mode/1.
-expansion_mode(Mode) :-
-   user:edcgs_expansion_mode(Mode),
-   !.
-expansion_mode(list).
-
 
 /* edcg_rules_to_dcg_rules <-
       */
@@ -31,13 +24,9 @@ edcg_rules_to_dcg_rules :-
 edcg_rule_to_dcg_rule(X1==>Y1, X2-->Y2) :-
    edcg_formula_to_dcg_formula(Y1, Y2, Args),
    X1 =.. As1,
-   ( expansion_mode(list),
-      As1 = [H|_],
-      Res =.. [H,Args],
-      append(As1, [Res], As2)
-   ; expansion_mode(fn),
-     functor(X1, T, _),
-     append(As1, [[T:Args]], As2) ),
+   As1 = [H|_],
+   Res =.. [H,Args],
+   append(As1, [Res], As2),
    X2 =.. As2.
 
 /* edcg_formula_to_dcg_formula(X1, X2, Args) <-
