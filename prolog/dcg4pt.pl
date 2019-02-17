@@ -6,6 +6,8 @@
       call_sequence_ground/6
    ]).
 
+prolog:message(warn(Text)) --> [Text].
+
 dcg4pt_rules_to_dcg_rules :-
    forall( X1-->Y1,
       ( dcg4pt_rule_to_dcg_rule(X1-->Y1, X2-->Y2),
@@ -140,6 +142,20 @@ call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
    var(R0),
    var(In),
    !, % parse tree and input unbound
+   /*
+      Normally, this is not intended. Consider the DCG
+         symbol  --> ['a'] | ['b'].
+         symbols --> sequence('*', symbol).
+      With both input and parse tree arguments being
+      unbound, this will generate "", "a", "aa", "aaa",
+      etc., which most likely will not end in the
+      expected result. For instance,
+         ?- phrase(symbols(PT), In), In = ['b'].
+      will not terminate, as it is first backtracked
+      over the sequence, not the symbols.
+      Therefore, we show a warning here.
+   */
+   print_message(warning, warn('Parse tree AND input unbound; this might not work as expected!')),
    phrase(DCGBody, In, Out),
    append(V, R1, R0).
 
