@@ -77,6 +77,10 @@ edcg_formula_to_dcg_formula(X1, X2, V) :-
    X2 = X1,
    V = SingleTerminal.
 edcg_formula_to_dcg_formula(X1, X2, V) :-
+   string(X1), !,
+   X2 = X1,
+   V = X1.
+edcg_formula_to_dcg_formula(X1, X2, V) :-
    add_variable_to_atom(V, X1, X2).
 
 edcg_formula_to_dcg_formula_(Vs, Y1, Y2) :-
