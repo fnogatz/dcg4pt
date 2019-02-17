@@ -128,12 +128,18 @@ conj_body(A, B, R0, R1) :-
 :- meta_predicate call_sequence_ground(//, ?, ?, ?, ?, ?).
 call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
    \+var(R0),
-   !,
+   !, % parse tree unbound
    append(V, R1, R0),
    phrase(DCGBody, In, Out).
 call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
    \+var(In),
-   !,
+   !, % input unbound
+   phrase(DCGBody, In, Out),
+   append(V, R1, R0).
+call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
+   var(R0),
+   var(In),
+   !, % parse tree and input unbound
    phrase(DCGBody, In, Out),
    append(V, R1, R0).
 

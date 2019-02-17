@@ -154,3 +154,14 @@ sentence:
 sequence_plus: sequence_plus([]) <#> [].
 sequence_question:
   sequence_question([single(some), single(some)]) <#> [some,some].
+
+% when both unbound, generate results and leave choice points
+'sequences work with unbound arguments (Result 1)' :-
+  phrase(sequences(PT), In),
+  PT = sequences([other]), In = [other], !.
+'sequences work with unbound arguments (Result 2)' :-
+  phrase(sequences(PT), In),
+  PT = sequences([other, single(some)]), In = [other, some], !.
+'sequences work with unbound arguments (Result 3)' :-
+  phrase(sequences(PT), In),
+  PT = sequences([other, single(some), single(some)]), In = [other, some, some], !.
