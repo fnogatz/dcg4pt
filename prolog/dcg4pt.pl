@@ -54,12 +54,12 @@ dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
 dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    (X1 = (_;_) ; X1 = (_|_)),
    !,
-   disjunctive_list(X1, Xs1),
+   semicolon_structure_to_list(X1, Xs1),
    maplist( dcg4pt_formula_to_dcg_formula,
       Xs1, Xs2, Vs),
    maplist( add_variable_binding(V),
       Xs2, Vs, Xsn2),
-   disjunctive_list(X2, Xsn2),
+   list_to_semicolon_structure(Xsn2, X2),
    !.
 dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = [SingleTerminal],
@@ -194,9 +194,6 @@ add_variable_to_atom(V, X1, X2) :-
    append(Xs, Zs, Ys),
    Xs = V.
 
-/* comma_structure_to_list(Structure, List) <-
-      */
-
 comma_structure_to_list(S, [X|Ys]) :-
    nonvar(S),
    S = (X,Xs),
@@ -204,26 +201,19 @@ comma_structure_to_list(S, [X|Ys]) :-
    comma_structure_to_list(Xs, Ys).
 comma_structure_to_list(X, [X]).
 
-
-/* list_to_comma_structure(List, Structure) <-
-      */
-
 list_to_comma_structure([X|Xs], (X,Ys)) :-
    list_to_comma_structure(Xs, Ys).
 list_to_comma_structure([X], X).
 
+semicolon_structure_to_list(S, [X|Ys]) :-
+   nonvar(S),
+   (S = (X;Xs) ; S = (X | Xs)),
+   !,
+   semicolon_structure_to_list(Xs, Ys).
+semicolon_structure_to_list(X, [X]).
 
-disjunctive_list(Term, [Term]) :-
-  Term \= (_;_),
-  Term \= (_|_),
-  !.
-disjunctive_list(Term, [T|Ts]) :-
-  var(Term), !,
-  disjunctive_list(TermR, Ts),
-  Term = (T;TermR).
-disjunctive_list(Term, [T|Ts]) :-
-  nonvar(Term),
-  ( Term = (T;TermR) ; Term = (T|TermR) ), !,
-  disjunctive_list(TermR, Ts).
+list_to_semicolon_structure([X|Xs], (X;Ys)) :-
+   list_to_semicolon_structure(Xs, Ys).
+list_to_semicolon_structure([X], X).
 
 split_tuple([A,B],A,B).
