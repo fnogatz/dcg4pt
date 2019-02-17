@@ -6,22 +6,20 @@
       call_sequence_ground/6
    ]).
 
-:- op(1200, xfx, ==>).
-
 /* edcg_rules_to_dcg_rules <-
       */
 
 edcg_rules_to_dcg_rules :-
-   forall( X1==>Y1,
-      ( edcg_rule_to_dcg_rule(X1==>Y1, X2-->Y2),
+   forall( X1-->Y1,
+      ( edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2),
         expand_term(X2-->Y2, Rule),
         assert(Rule) ) ).
 
 
-/* edcg_rule_to_dcg_rule(X1==>Y1, X2-->Y2) <-
+/* edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2) <-
       */
 
-edcg_rule_to_dcg_rule(X1==>Y1, X2-->Y2) :-
+edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2) :-
    edcg_formula_to_dcg_formula(Y1, Y2, Args),
    X1 =.. As1,
    As1 = [H|_],

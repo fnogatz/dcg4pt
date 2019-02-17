@@ -1,27 +1,27 @@
-:- use_module(library(dcg4pt_expand)).
+:- use_module(library(dcg4pt/expand)).
 
-:- op(1200, xfx, ==>).
+:- op(1200, xfx, -->).
 
-sentence ==> noun_phrase, verb_phrase.
-noun_phrase ==> determiner, noun.
-verb_phrase ==> ( verb ; verb, noun_phrase ).
-noun ==> [boy] ; [boys] ; [apple] ; [apples].
-determiner ==> [the].
-verb ==> [eat] ; [eats].
+sentence --> noun_phrase, verb_phrase.
+noun_phrase --> determiner, noun.
+verb_phrase --> ( verb ; verb, noun_phrase ).
+noun --> [boy] ; [boys] ; [apple] ; [apples].
+determiner --> [the].
+verb --> [eat] ; [eats].
 
-single ==> [some].
+single --> [some].
 
-with_argument(1) ==> [some].
+with_argument(1) --> [some].
 
-sequence_star ==> sequence('*', single).
-sequence_question ==> sequence('?', single).
+sequence_star --> sequence('*', single).
+sequence_question --> sequence('?', single).
 
-sequences ==> [other], sequence('*', single).
+sequences --> [other], sequence('*', single).
 
 :- op(800, fy, *).
 *(A,B,C,D) :- sequence('*', A, B, C, D).
 
-sequence_star_prefix ==> *single.
+sequence_star_prefix --> *single.
 
 :- use_module(library(tap)).
 
