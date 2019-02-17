@@ -89,6 +89,7 @@ single --> [some].
 with_argument(1) --> [some].
 
 sequence_star --> sequence('*', single).
+sequence_plus --> sequence('+', single).
 sequence_question --> sequence('?', single).
 
 sequences --> [other], sequence('*', single).
@@ -129,6 +130,8 @@ verb_phrase: verb_phrase(verb(eat)) <=> [eat].
 sequence_star: sequence_star([]) <=> [].
 sequence_star: sequence_star([single(some)]) <=> [some].
 sequence_star: sequence_star([single(some), single(some)]) <=> [some,some].
+sequence_plus: sequence_plus([single(some)]) <=> [some].
+sequence_plus: sequence_plus([single(some), single(some)]) <=> [some,some].
 sequence_star_prefix: sequence_star_prefix([single(some), single(some)]) <=> [some,some].
 sequence_question: sequence_question([]) <=> [].
 sequence_question: sequence_question([single(some)]) <=> [some].
@@ -148,5 +151,6 @@ sentence:
     ])
   ]) <=> [the, boy, eats, the, apple].
 
+sequence_plus: sequence_plus([]) <#> [].
 sequence_question:
   sequence_question([single(some), single(some)]) <#> [some,some].
