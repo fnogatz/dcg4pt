@@ -1,16 +1,19 @@
-:- op(800, xfx, <=>).
+:- op(800, xfx, <=>). % succeeding tests
+:- op(800, xfx, <#>). % failing tests
 
-heads(DCGBody, In, Head1, Head2) :-
+heads(Symbol, DCGBody, In, Head1, Head2) :-
   In = [First|_], integer(First), !,
-  format(atom(Head1), '~w > "~s"', [DCGBody, In]),
-  format(atom(Head2), '~w < "~s"', [DCGBody, In]).
-heads(DCGBody, In, Head1, Head2) :-
-  format(atom(Head1), '~w > ~w', [DCGBody, In]),
-  format(atom(Head2), '~w < ~w', [DCGBody, In]).
+  format(atom(Head1), '~w ~w> "~s"', [DCGBody, Symbol, In]),
+  format(atom(Head2), '~w ~w< "~s"', [DCGBody, Symbol, In]).
+heads(Symbol, DCGBody, In, Head1, Head2) :-
+  format(atom(Head1), '~w ~w> ~w', [DCGBody, Symbol, In]),
+  format(atom(Head2), '~w ~w< ~w', [DCGBody, Symbol, In]).
 
 % Define term expansion for TAP tests
+
+%% succeeding tests, using `<=>`
 term_expansion(DCGBody: PT <=> In, [(Head1 :- Test1), (Head2 :- Test2)]) :-
-  heads(DCGBody, In, Head1, Head2),
+  heads('', DCGBody, In, Head1, Head2),
   DCGBody =.. DCGBody_L,
   % build first test: from input to parsetree
   append(DCGBody_L, [PT1], DCGBody_L1),
@@ -25,6 +28,26 @@ term_expansion(DCGBody: PT <=> In, [(Head1 :- Test1), (Head2 :- Test2)]) :-
   Test2 = (
     phrase(DCGBody2, In2, []), !,
     In2 = In
+  ),
+  % register tests
+  tap:register_test(Head1),
+  tap:register_test(Head2).
+
+%% failing tests, using `<#>`
+term_expansion(DCGBody: PT <#> In, [(Head1 :- Test1), (Head2 :- Test2)]) :-
+  heads('!', DCGBody, In, Head1, Head2),
+  DCGBody =.. DCGBody_L,
+  % build first test: from input to parsetree
+  append(DCGBody_L, [_PT1], DCGBody_L1),
+  DCGBody1 =.. DCGBody_L1,
+  Test1 = (
+    \+ phrase(DCGBody1, In, [])
+  ),
+  % build second test: from parsetree to input
+  append(DCGBody_L, [PT], DCGBody_L2),
+  DCGBody2 =.. DCGBody_L2,
+  Test2 = (
+    \+ phrase(DCGBody2, _In2, [])
   ),
   % register tests
   tap:register_test(Head1),
@@ -125,7 +148,5 @@ sentence:
     ])
   ]) <=> [the, boy, eats, the, apple].
 
-/*
-'sequence_question (not multiples) [some,some]' :-
-   \+phrase(sequence_question(_), [some, some]), !.
-*/
+sequence_question:
+  sequence_question([single(some), single(some)]) <#> [some,some].
