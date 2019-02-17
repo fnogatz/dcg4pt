@@ -1,7 +1,7 @@
 .PHONY: all test clean
 
 version := $(shell swipl -q -s pack -g 'version(V),writeln(V)' -t halt)
-packfile = edcgs-$(version).tgz
+packfile = dcg4pt-$(version).tgz
 
 SWIPL := swipl
 

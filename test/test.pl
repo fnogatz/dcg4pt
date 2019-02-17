@@ -1,4 +1,4 @@
-:- use_module(library(edcgs_expand)).
+:- use_module(library(dcg4pt_expand)).
 
 :- op(1200, xfx, ==>).
 
