@@ -1,42 +1,42 @@
 :- module(dcg4pt, [
-      edcg_rules_to_dcg_rules/0,
-      edcg_rule_to_dcg_rule/2,
-      '$edcg_append'/4,
+      dcg4pt_rules_to_dcg_rules/0,
+      dcg4pt_rule_to_dcg_rule/2,
+      '$dcg4pt_append'/4,
       sequence/5,
       call_sequence_ground/6
    ]).
 
-edcg_rules_to_dcg_rules :-
+dcg4pt_rules_to_dcg_rules :-
    forall( X1-->Y1,
-      ( edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2),
+      ( dcg4pt_rule_to_dcg_rule(X1-->Y1, X2-->Y2),
         expand_term(X2-->Y2, Rule),
         assert(Rule) ) ).
 
-edcg_rule_to_dcg_rule(X1-->Y1, X2-->Y2) :-
-   edcg_formula_to_dcg_formula(Y1, Y2, Args),
+dcg4pt_rule_to_dcg_rule(X1-->Y1, X2-->Y2) :-
+   dcg4pt_formula_to_dcg_formula(Y1, Y2, Args),
    X1 =.. As1,
    As1 = [H|_],
    Res =.. [H,Args],
    append(As1, [Res], As2),
    X2 =.. As2.
 
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = V^X,
    !,
-   edcg_formula_to_dcg_formula(X, X2, V).
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+   dcg4pt_formula_to_dcg_formula(X, X2, V).
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = sequence(_,_),
    !,
    add_variable_to_atom(V, X1, X2).
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = {X},
    !,
    X2 = {X, (V = [])}.
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = !,
    !,
    X2 = (!, {V = []}).
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = (_,_),
    !,
    comma_structure_to_list(X1, Xs1),
@@ -51,30 +51,30 @@ edcg_formula_to_dcg_formula(X1, X2, V) :-
       X
    ),
    !.
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    (X1 = (_;_) ; X1 = (_|_)),
    !,
    disjunctive_list(X1, Xs1),
-   maplist( edcg_formula_to_dcg_formula,
+   maplist( dcg4pt_formula_to_dcg_formula,
       Xs1, Xs2, Vs),
    maplist( add_variable_binding(V),
       Xs2, Vs, Xsn2),
    disjunctive_list(X2, Xsn2),
    !.
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    X1 = [SingleTerminal],
    !,
    X2 = X1,
    V = SingleTerminal.
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    string(X1), !,
    X2 = X1,
    V = X1.
-edcg_formula_to_dcg_formula(X1, X2, V) :-
+dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
    add_variable_to_atom(V, X1, X2).
 
-edcg_formula_to_dcg_formula_(Vs, Y1, Y2) :-
-   edcg_formula_to_dcg_formula(Y1, Y2, Vs).
+dcg4pt_formula_to_dcg_formula_(Vs, Y1, Y2) :-
+   dcg4pt_formula_to_dcg_formula(Y1, Y2, Vs).
 
 add_variable_binding(Bind, X2, V, X2n) :-
    X2n = ({ Bind = V }, X2).
@@ -90,11 +90,11 @@ conj_body(A, B, R0, R1) :-
 conj_body(A, B, R0, R1) :-
    A = sequence(_, _),
    !,
-   edcg_formula_to_dcg_formula(A, DCGBody, V),
+   dcg4pt_formula_to_dcg_formula(A, DCGBody, V),
    % B = ({ append(V, R1, R0) }, DCGBody).
    B = call_sequence_ground(DCGBody, V, R1, R0).
 conj_body(A, B, R0, R1) :-
-   edcg_formula_to_dcg_formula(A, DCGBody, V),
+   dcg4pt_formula_to_dcg_formula(A, DCGBody, V),
    B = (
       { R0 = [V|R1] },
       DCGBody
@@ -180,17 +180,17 @@ add_variable_to_atoms(_, [], []).
 add_variable_to_atom(V, X1, X2) :-
    is_list(X1),
    !,
-   X2 =.. ['$edcg_append', X1, V].
+   X2 =.. ['$dcg4pt_append', X1, V].
 add_variable_to_atom(V, X1, X2) :-
    X1 =.. As1,
    append(As1, [V], As2),
    X2 =.. As2.
 
 
-/* '$edcg_append'(Xs, V, Ys, Zs) <-
+/* '$dcg4pt_append'(Xs, V, Ys, Zs) <-
       */
 
-'$edcg_append'(Xs, V, Ys, Zs) :-
+'$dcg4pt_append'(Xs, V, Ys, Zs) :-
    append(Xs, Zs, Ys),
    Xs = V.
 
