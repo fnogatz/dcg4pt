@@ -53,6 +53,10 @@ term_expansion(DCGBody: PT <#> In, [(Head1 :- Test1), (Head2 :- Test2)]) :-
   tap:register_test(Head1),
   tap:register_test(Head2).
 
+% Message hook to not print warnings
+message_hook(_,warning,_) :-
+  true. % just ignore
+
 % Use term expansion of DCG4PT
 :- use_module(library(dcg4pt/expand)).
 
