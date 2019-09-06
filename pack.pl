@@ -10,3 +10,5 @@ maintainer('Falco Nogatz','fnogatz@gmail.com').
 packager('Falco Nogatz','fnogatz@gmail.com').
 
 home('https://github.com/fnogatz/dcg4pt').
+
+requires(tap).
