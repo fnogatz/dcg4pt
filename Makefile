@@ -8,18 +8,18 @@ SWIPL := swipl
 all: test
 
 version:
-	echo $(version)
+	@echo $(version)
 
 check: test
 
 install:
-	echo "(none)"
+	@echo "(none)"
 
 test:
 	@$(SWIPL) -q -g 'main,halt(0)' -t 'halt(1)' -s test/test.pl
 
 package: test
-	tar cvzf $(packfile) prolog test pack.pl README.md LICENSE
+	tar cvzf $(packfile) prolog test pack.pl README.md LICENSE Makefile
 
 release: test
 	hub release create -m v$(version) v$(version)
