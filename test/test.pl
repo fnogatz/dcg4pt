@@ -93,15 +93,20 @@ single --> [some].
 with_argument(1) --> [some].
 
 sequence_star --> sequence('*', single).
+sequence_star2 --> sequence('**', single).
 sequence_plus --> sequence('+', single).
 sequence_question --> sequence('?', single).
 
 sequences --> [other], sequence('*', single).
+sequences2 --> [other], sequence('**', single).
 
 :- op(800, fy, *).
+:- op(800, fy, **).
 *(A,B,C,D) :- sequence('*', A, B, C, D).
+**(A,B,C,D) :- sequence('**', A, B, C, D).
 
 sequence_star_prefix --> *single.
+sequence_star2_prefix --> **single.
 
 % Example calls to be tested starting here.
 
@@ -134,9 +139,13 @@ verb_phrase: verb_phrase(verb(eat)) <=> [eat].
 sequence_star: sequence_star([]) <=> [].
 sequence_star: sequence_star([single(some)]) <=> [some].
 sequence_star: sequence_star([single(some), single(some)]) <=> [some,some].
+sequence_star2: sequence_star2([]) <=> [].
+sequence_star2: sequence_star2([single(some)]) <=> [some].
+sequence_star2: sequence_star2([single(some), single(some)]) <=> [some,some].
 sequence_plus: sequence_plus([single(some)]) <=> [some].
 sequence_plus: sequence_plus([single(some), single(some)]) <=> [some,some].
 sequence_star_prefix: sequence_star_prefix([single(some), single(some)]) <=> [some,some].
+sequence_star2_prefix: sequence_star2_prefix([single(some), single(some)]) <=> [some,some].
 sequence_question: sequence_question([]) <=> [].
 sequence_question: sequence_question([single(some)]) <=> [some].
 sequences: sequences([other, single(some)]) <=> [other,some].
