@@ -161,31 +161,22 @@ call_sequence_ground(DCGBody, V, R1, R0, In, Out) :-
 
 :- meta_predicate sequence(?, //, ?, ?, ?).
 
-sequence('?', Predicate, [A], Xs, Ys) :-
-  apply_sequence(Predicate, [A, Xs, Ys]).
-sequence('?', _, [], Xs, Xs).
+sequence('?', DCGBody, [PT]) --> call(DCGBody, PT).
+sequence('?', _, []) --> [].
 
-sequence('+', Predicate, [A|As], Xs, Ys) :-
-  apply_sequence(Predicate, [A, Xs, Zs]),
-  sequence('*', Predicate, As, Zs, Ys).
+sequence('*', _, []) --> [].
+sequence('*', DCGBody, [PT|PTs]) -->
+  call(DCGBody, PT),
+  sequence('*', DCGBody, PTs).
 
-sequence('*', _, [], Xs, Xs).
-sequence('*', Predicate, [A|As], Xs, Ys) :-
-  apply_sequence(Predicate, [A, Xs, Zs]),
-  sequence('*', Predicate, As, Zs, Ys).
+sequence('**', DCGBody, [PT|PTs]) -->
+  call(DCGBody, PT),
+  sequence('**', DCGBody, PTs).
+sequence('**', _, []) --> [].
 
-sequence('**', Predicate, [A|As], Xs, Ys) :-
-  apply_sequence(Predicate, [A, Xs, Zs]),
-  sequence('**', Predicate, As, Zs, Ys).
-sequence('**', _, [], Xs, Xs).
-
-:- meta_predicate apply_sequence(//, ?).
-
-apply_sequence(Module:Predicate, [A, Xs, Ys]) :-
-  Predicate =.. [PredicateName|Args],
-  append([PredicateName|Args], [A], DCGBodyList),
-  DCGBody =.. DCGBodyList,
-  phrase(Module:DCGBody, Xs, Ys).
+sequence('+', DCGBody, [PT|PTs]) -->
+  call(DCGBody, PT),
+  sequence('*', DCGBody, PTs).
 
 /* add_variable_to_atoms(V, Xs1, Xs2) <-
     */
