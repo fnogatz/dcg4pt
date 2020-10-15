@@ -9,18 +9,17 @@
 prolog:message(warn(Text)) --> [Text].
 
 dcg4pt_rules_to_dcg_rules :-
-  forall( X1-->Y1,
-    ( dcg4pt_rule_to_dcg_rule(X1-->Y1, X2-->Y2),
-      expand_term(X2-->Y2, Rule),
+  forall( X1 --> Y1,
+    ( dcg4pt_rule_to_dcg_rule(X1 --> Y1, X2 --> Y2),
+      expand_term(X2 --> Y2, Rule),
       assert(Rule) ) ).
 
-dcg4pt_rule_to_dcg_rule(X1-->Y1, X2-->Y2) :-
-  dcg4pt_formula_to_dcg_formula(Y1, Y2, Args),
-  X1 =.. As1,
-  As1 = [H|_],
-  Res =.. [H,Args],
-  append(As1, [Res], As2),
-  X2 =.. As2.
+dcg4pt_rule_to_dcg_rule(X1 --> Y1, X2 --> Y2) :-
+  X1 =.. [H|Args1],
+  Res =.. [H, PT],
+  append(Args1, [Res], Args2),
+  X2 =.. [H|Args2],
+  dcg4pt_formula_to_dcg_formula(Y1, Y2, PT).
 
 dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
   X1 = V^X,
@@ -30,14 +29,10 @@ dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
   X1 = sequence(_,_),
   !,
   add_variable_to_atom(V, X1, X2).
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  X1 = {X},
-  !,
-  X2 = {X, (V = [])}.
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  X1 = !,
-  !,
-  X2 = (!, {V = []}).
+dcg4pt_formula_to_dcg_formula({ X }, X2 = {X, (V = [])}, V) :-
+  !.
+dcg4pt_formula_to_dcg_formula(!, (!, {V = []}), V) :-
+  !.
 dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
   X1 = (_,_),
   !,
@@ -48,10 +43,7 @@ dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
   append(R1s_, [Last], R1s),
   Last = [],
   maplist((=), R0s_, R1s_),
-  list_to_comma_structure(Xs2, X),
-  X2 = (
-    X
-  ),
+  list_to_comma_structure(Xs2, X2),
   !.
 dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
   (X1 = (_;_) ; X1 = (_|_)),
@@ -63,23 +55,17 @@ dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
     Xs2, Vs, Xsn2),
   list_to_semicolon_structure(Xsn2, X2),
   !.
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  X1 = [SingleTerminal],
-  !,
-  X2 = X1,
-  V = SingleTerminal.
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  string(X1), !,
-  X2 = X1,
-  V = X1.
+dcg4pt_formula_to_dcg_formula([SingleTerminal], [SingleTerminal], SingleTerminal) :-
+  !.
+dcg4pt_formula_to_dcg_formula(X1, X1, X1) :-
+  string(X1),
+  !.
 dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
   add_variable_to_atom(V, X1, X2).
-
 dcg4pt_formula_to_dcg_formula_(Vs, Y1, Y2) :-
   dcg4pt_formula_to_dcg_formula(Y1, Y2, Vs).
 
-add_variable_binding(Bind, X2, V, X2n) :-
-  X2n = ({ Bind = V }, X2).
+add_variable_binding(Bind, X2, V, ({ Bind = V }, X2)).
 
 conj_body(A, B, R0, R1) :-
   A = *(C),
