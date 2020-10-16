@@ -1,7 +1,6 @@
 :- module(dcg4pt, [
     dcg4pt_rules_to_dcg_rules/0,
     dcg4pt_rule_to_dcg_rule/2,
-    '$dcg4pt_append'/4,
     sequence/5,
     call_sequence_ground/6
   ]).
@@ -15,69 +14,51 @@ dcg4pt_rules_to_dcg_rules :-
       assert(Rule) ) ).
 
 dcg4pt_rule_to_dcg_rule(X1 --> Y1, X2 --> Y2) :-
-  X1 =.. [H|Args1],
-  Res =.. [H, PT],
-  append(Args1, [Res], Args2),
-  X2 =.. [H|Args2],
-  dcg4pt_formula_to_dcg_formula(Y1, Y2, PT).
+  X1 =.. [H|_],
+  Res =.. [H, V],
+  term_args_attached(X1, [Res], X2),
+  dcg4pt_formula_to_dcg_formula(Y1, Y2, V).
 
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  X1 = V^X,
-  !,
-  dcg4pt_formula_to_dcg_formula(X, X2, V).
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  X1 = sequence(_,_),
-  !,
-  add_variable_to_atom(V, X1, X2).
-dcg4pt_formula_to_dcg_formula({ X }, X2 = {X, (V = [])}, V) :-
-  !.
-dcg4pt_formula_to_dcg_formula(!, (!, {V = []}), V) :-
-  !.
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  X1 = (_,_),
-  !,
-  comma_structure_to_list(X1, Xs1),
-  !,
-  maplist(conj_body, Xs1, Xs2, R0s, R1s),
+dcg4pt_formula_to_dcg_formula({ P }, { P, (V = []) }, V).
+dcg4pt_formula_to_dcg_formula(!, (!, { V = [] }), V).
+dcg4pt_formula_to_dcg_formula(Y1, Y2, V) :-
+  Y1 = (_,_), !,
+  term_functors_list(Y1, [(,)], Ys1),
+  maplist(conj_body, Ys1, Ys2, R0s, R1s),
   R0s = [V|R0s_], % take first
   append(R1s_, [Last], R1s),
   Last = [],
   maplist((=), R0s_, R1s_),
-  list_to_comma_structure(Xs2, X2),
-  !.
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  (X1 = (_;_) ; X1 = (_|_)),
-  !,
-  semicolon_structure_to_list(X1, Xs1),
-  maplist( dcg4pt_formula_to_dcg_formula,
-    Xs1, Xs2, Vs),
-  maplist( add_variable_binding(V),
-    Xs2, Vs, Xsn2),
-  list_to_semicolon_structure(Xsn2, X2),
-  !.
-dcg4pt_formula_to_dcg_formula([SingleTerminal], [SingleTerminal], SingleTerminal) :-
-  !.
-dcg4pt_formula_to_dcg_formula(X1, X1, X1) :-
-  string(X1),
-  !.
-dcg4pt_formula_to_dcg_formula(X1, X2, V) :-
-  add_variable_to_atom(V, X1, X2).
-dcg4pt_formula_to_dcg_formula_(Vs, Y1, Y2) :-
-  dcg4pt_formula_to_dcg_formula(Y1, Y2, Vs).
+  term_functors_list(Y2, [(,)], Ys2).
+dcg4pt_formula_to_dcg_formula(Y1, Y2, V) :-
+  (Y1 = (_;_) ; Y1 = (_|_)), !,
+  term_functors_list(Y1, [(;), '|'], Ys1),
+  maplist(dcg4pt_formula_to_dcg_formula, Ys1, Ys2, Vs),
+  maplist(add_variable_binding(V), Ys2, Vs, Ysn2),
+  term_functors_list(Y2, [(;)], Ysn2).
+dcg4pt_formula_to_dcg_formula([SingleTerminal], [SingleTerminal], SingleTerminal).
+dcg4pt_formula_to_dcg_formula(Terminals, Terminals, Terminals) :-
+  is_list(Terminals).
+dcg4pt_formula_to_dcg_formula(Y1, Y1, Y1) :-
+  string(Y1).
+dcg4pt_formula_to_dcg_formula(Y1, Y2, V) :-
+  term_args_attached(Y1, [V], Y2).
 
 add_variable_binding(Bind, X2, V, ({ Bind = V }, X2)).
 
+term_args_attached(X1, Vs, X2) :-
+  X1 =.. As1,
+  append(As1, Vs, As2),
+  X2 =.. As2.
+
 conj_body(A, B, R0, R1) :-
-  A = *(C),
-  !,
+  A = *(C), !,
   conj_body(sequence('*', C), B, R0, R1).
 conj_body(A, B, R0, R1) :-
-  A = ?(C),
-  !,
+  A = ?(C), !,
   conj_body(sequence('?', C), B, R0, R1).
 conj_body(A, B, R0, R1) :-
-  A = sequence(_, _),
-  !,
+  A = sequence(_, _), !,
   dcg4pt_formula_to_dcg_formula(A, DCGBody, V),
   % B = ({ append(V, R1, R0) }, DCGBody).
   B = call_sequence_ground(DCGBody, V, R1, R0).
@@ -164,55 +145,12 @@ sequence('+', DCGBody, [PT|PTs]) -->
   call(DCGBody, PT),
   sequence('*', DCGBody, PTs).
 
-/* add_variable_to_atoms(V, Xs1, Xs2) <-
-    */
-
-add_variable_to_atoms(V, [X1|Xs1], [X2|Xs2]) :-
-  add_variable_to_atom(V, X1, X2),
-  add_variable_to_atoms(V, Xs1, Xs2).
-add_variable_to_atoms(_, [], []).
-
-
-/* add_variable_to_atom(V, X1, X2) <-
-    */
-
-add_variable_to_atom(V, X1, X2) :-
-  is_list(X1),
-  !,
-  X2 =.. ['$dcg4pt_append', X1, V].
-add_variable_to_atom(V, X1, X2) :-
-  X1 =.. As1,
-  append(As1, [V], As2),
-  X2 =.. As2.
-
-
-/* '$dcg4pt_append'(Xs, V, Ys, Zs) <-
-    */
-
-'$dcg4pt_append'(Xs, V, Ys, Zs) :-
-  append(Xs, Zs, Ys),
-  Xs = V.
-
-comma_structure_to_list(S, [X|Ys]) :-
-  nonvar(S),
-  S = (X,Xs),
-  !,
-  comma_structure_to_list(Xs, Ys).
-comma_structure_to_list(X, [X]).
-
-list_to_comma_structure([X|Xs], (X,Ys)) :-
-  list_to_comma_structure(Xs, Ys).
-list_to_comma_structure([X], X).
-
-semicolon_structure_to_list(S, [X|Ys]) :-
-  nonvar(S),
-  (S = (X;Xs) ; S = (X | Xs)),
-  !,
-  semicolon_structure_to_list(Xs, Ys).
-semicolon_structure_to_list(X, [X]).
-
-list_to_semicolon_structure([X|Xs], (X;Ys)) :-
-  list_to_semicolon_structure(Xs, Ys).
-list_to_semicolon_structure([X], X).
-
-split_tuple([A,B],A,B).
+%% term_functors_list(+Term, +PossibleFunctors, -List)
+%% term_functors_list(-Term, +PossibleFunctors, +List)
+term_functors_list(Term, Names, [A|Rest]) :-
+  term_functors_list_(Term, Names, A, Rest).
+term_functors_list_(Term, Names, A, [B|Rest]) :-
+  member(Name, Names),
+  Term =.. [Name, A, TermB],
+  term_functors_list_(TermB, Names, B, Rest).
+term_functors_list_(A, _, A, []).
