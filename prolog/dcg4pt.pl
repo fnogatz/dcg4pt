@@ -147,10 +147,8 @@ sequence('+', DCGBody, [PT|PTs]) -->
 
 %% term_functors_list(+Term, +PossibleFunctors, -List)
 %% term_functors_list(-Term, +PossibleFunctors, +List)
-term_functors_list(Term, Names, [A|Rest]) :-
-  term_functors_list_(Term, Names, A, Rest).
-term_functors_list_(Term, Names, A, [B|Rest]) :-
+term_functors_list(Term, Names, [A,B|Rest]) :-
   member(Name, Names),
   Term =.. [Name, A, TermB],
-  term_functors_list_(TermB, Names, B, Rest).
-term_functors_list_(A, _, A, []).
+  term_functors_list(TermB, Names, [B|Rest]).
+term_functors_list(A, _, [A]).
