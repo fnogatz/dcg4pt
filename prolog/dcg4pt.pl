@@ -19,10 +19,12 @@ dcg4pt_rule_to_dcg_rule(X1 --> Y1, X2 --> Y2) :-
   term_args_attached(X1, [Res], X2),
   dcg4pt_formula_to_dcg_formula(Y1, Y2, V).
 
-dcg4pt_formula_to_dcg_formula({ P }, { P, (V = []) }, V).
-dcg4pt_formula_to_dcg_formula(!, (!, { V = [] }), V).
+dcg4pt_formula_to_dcg_formula({ P }, { P }, []).
+dcg4pt_formula_to_dcg_formula(!, !, []).
+dcg4pt_formula_to_dcg_formula(\+ Y1, \+ Y2, _) :-
+  dcg4pt_formula_to_dcg_formula(Y1, Y2, _).
 dcg4pt_formula_to_dcg_formula(Y1, Y2, V) :-
-  Y1 = (_,_), !,
+  Y1 = (_,_),
   term_functors_list(Y1, [(,)], Ys1),
   maplist(conj_body, Ys1, Ys2, R0s, R1s),
   R0s = [V|R0s_], % take first
@@ -31,7 +33,7 @@ dcg4pt_formula_to_dcg_formula(Y1, Y2, V) :-
   maplist((=), R0s_, R1s_),
   term_functors_list(Y2, [(,)], Ys2).
 dcg4pt_formula_to_dcg_formula(Y1, Y2, V) :-
-  (Y1 = (_;_) ; Y1 = (_|_)), !,
+  (Y1 = (_;_) ; Y1 = (_|_)),
   term_functors_list(Y1, [(;), '|'], Ys1),
   maplist(dcg4pt_formula_to_dcg_formula, Ys1, Ys2, Vs),
   maplist(add_variable_binding(V), Ys2, Vs, Ysn2),
@@ -52,10 +54,10 @@ term_args_attached(X1, Vs, X2) :-
   X2 =.. As2.
 
 conj_body(A, B, R0, R1) :-
-  A = *(C), !,
+  A = *(C),
   conj_body(sequence('*', C), B, R0, R1).
 conj_body(A, B, R0, R1) :-
-  A = ?(C), !,
+  A = ?(C),
   conj_body(sequence('?', C), B, R0, R1).
 conj_body(A, B, R0, R1) :-
   A = sequence(_, _), !,
