@@ -1,6 +1,6 @@
 name(dcg4pt).
 
-version('1.0.0').
+version('1.0.1').
 download('https://github.com/fnogatz/dcg4pt/releases/*.zip').
 
 title('DCG for Parse Trees').
