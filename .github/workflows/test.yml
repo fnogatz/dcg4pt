@@ -9,23 +9,23 @@ jobs:
 
     strategy:
       matrix:
-        swipl: ['8.0', 'stable', 'devel']
+        swipl: ["8.0", "stable", "devel"]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Install swivm and SWI-Prolog
-      uses: fnogatz/swivm/actions/load@main
-      with:
-        swi-prolog-version: ${{ matrix.swipl }}
+      - name: Install swivm and SWI-Prolog
+        uses: fnogatz/swivm/actions/load@main
+        with:
+          swi-prolog-version: ${{ matrix.swipl }}
 
-    - name: Install SWI-Prolog pack dependencies
-      run: |
-        source ~/.swivm/swivm.sh
-        make install
+      - name: Install SWI-Prolog pack dependencies
+        run: |
+          source ~/.swivm/swivm.sh
+          make install
 
-    - name: Run tests
-      run: |
-        source ~/.swivm/swivm.sh
-        make test
+      - name: Run tests
+        run: |
+          source ~/.swivm/swivm.sh
+          make test
