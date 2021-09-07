@@ -24,7 +24,7 @@ main :-
 
 % prints:
 %   sentence([
-%     noun_phrase([ 
+%     noun_phrase([
 %       determiner(the),
 %       noun(boy) ]),
 %     verb_phrase([
